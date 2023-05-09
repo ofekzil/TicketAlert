@@ -3,8 +3,9 @@ import json
 import re
 
 # return json representation of event from given url
+# can chnage PageSize to control number of returned results
 def get_event_info(url):
-    info = requests.post(url, json={})
+    info = requests.post(url, json={"SortBy" : "Price", "PageSize" : 50})
     return info.json()
 
 # return an array of json objects w/ price and seat availability for event where price is <= threshold
@@ -40,40 +41,49 @@ def get_price(price_str):
     if (len(nums) > 1):
         fact = 1
         i = len(nums) - 1
-        while i >= 0:
+        while (i >= 0):
             res += int(int(nums[i])*fact)
             fact *= 1000
             i -= 1
     else:
         res += int(nums[0])
-    # if (res >= 1000): print(price_str)
     return res
+
+# example calls
 
 url0 = "https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/"
 url1 = "https://www.stubhub.ca/boston-celtics-boston-tickets-5-9-2023/event/151513495/"
 url2 = "https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/"
 
-# example calls
 
 # info0 = get_event_info(url0)
 # info1 = get_event_info(url1)
-info2 = get_event_info(url2)
-print(info2["Items"])
-# print(info2.keys())
+# info2 = get_event_info(url2)
+# print(info2["Items"])
+# print(info0.keys())
+# print(info0["Quantity"])
 # print(info0["Items"][0].keys())
+# print(info0["SortDirection"], info0["SortBy"], info0["PageVisitId"], info0["PageSize"])
 
-# print(info0["Items"][0]["Price"])
+# print(len(info0["Items"]))
 # print(get_price(info0["Items"][0]["Price"]))
 
-# for item in info0["Items"]:
-#     print(item["PriceWithFees"])
+# for item in info1["Items"]:
+#     print(item["Section"] + " " + item["Row"]+ " " + item["Price"] + " " + item["QuantityRange"])
+
 # print(get_price('330'))
 # print(get_price("1,200"))
 # print(get_price("C$1,234,654"))
 # print(get_price("C$12,345"))
 
+# tix0 = get_cheap_tickets(info0, 100)
+# print(tix0)
+# print(len(tix0))
+# print(len(info1["Items"]))
 # tix1 = get_cheap_tickets(info1, 3500)
-tix2 = get_cheap_tickets(info2, 1200)
+# print(tix1)
+# print(len(tix1))
+# tix2 = get_cheap_tickets(info2, 1200)
 
 # print(tix2)
 
