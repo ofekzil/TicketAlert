@@ -1,16 +1,22 @@
 import requests
 import json
 import re
+from datetime import datetime 
 
 # class representing an event on StubHub
 class Event:
 
     # values initialized in the constructor will first be part of dummy data used for testing
     # eventually they will be retrieved from a database
-    def __init__(self, url, event_date) -> None:
+
+    # might make the constructor parameter a string and turn it into a date here, or keep it as a date 
+    # dependent on how info is stored in database
+    # also note that not all event dates may have the exact same format, leading to some confusing formatting potentially
+    def __init__(self, url, event_date, email) -> None:
         self.url = url
         self.event_json = self.get_event_info(url)
         self.event_date = event_date
+        self.email = email
 
 
     # return json representation of event from given url
@@ -20,9 +26,9 @@ class Event:
         return info.json()
     
     # check if the event has already passed (event datetime < current datetime)
+    # in future filtering may be done when selecting from DB, and not necessarily here, but will keep function for now
     def is_past(self):
-        # TODO
-        pass
+        return datetime.now() > self.event_date
 
     # return an array of json objects w/ price and seat availability for event where price is <= threshold
     def get_cheap_tickets(self, threshold):
@@ -74,50 +80,25 @@ class Event:
 # TODO: create unit tests to test functionality w/ dummy data (not necessarily from POST request)
 
 url0 = "https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/"
-url1 = "https://www.stubhub.ca/boston-celtics-boston-tickets-5-9-2023/event/151513495/"
+url1 = "https://www.stubhub.ca/boston-celtics-boston-tickets-5-14-2023/event/151513498/"
 url2 = "https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/"
 
 # using class
 
-maiden = Event(url0, "Oct 2 2023") # TODO: replace date string w/ Date object (or equivalent)
-nba = Event(url1, "May 9 2023")
-gnr = Event(url2, "Oct 16 2023")
+maiden = Event(url0, datetime.strptime("Oct 02 Mon 07:30PM 2023", "%b %d %a %I:%M%p %Y"), "example@gmail.com")
+nba = Event(url1, datetime.strptime("May 14 2023", "%b %d %Y"))
+gnr = Event(url2, datetime.strptime("Oct 16 Mon 06:30PM 2023", "%b %d %a %I:%M%p %Y"), "my.email@gmail.com")
+past = Event(url0, datetime.strptime("Oct 03 Mon 05:30PM 2022", "%b %d %a %I:%M%p %Y"), "AnAddress123@gmail.com")
 
-print(maiden.get_cheap_tickets(175))
-
-
-# Invalid now, before class was created!!!
-# keeping as examples
-# info0 = get_event_info(url0)
-# info1 = get_event_info(url1)
-# info2 = get_event_info(url2)
-# print(info2["Items"])
-# print(info0.keys())
-# print(info0["Quantity"])
-# print(info0["Items"][0].keys())
-# print(info0["SortDirection"], info0["SortBy"], info0["PageVisitId"], info0["PageSize"])
-
-# print(len(info0["Items"]))
-# print(get_price(info0["Items"][0]["Price"]))
-
-# for item in info1["Items"]:
-#     print(item["Section"] + " " + item["Row"]+ " " + item["Price"] + " " + item["QuantityRange"])
-
-# print(get_price('330'))
-# print(get_price("1,200"))
-# print(get_price("C$1,234,654"))
-# print(get_price("C$12,345"))
-
-# tix0 = get_cheap_tickets(info0, 100)
-# print(tix0)
-# print(len(tix0))
-# print(len(info1["Items"]))
-# tix1 = get_cheap_tickets(info1, 3500)
-# print(tix1)
-# print(len(tix1))
-# tix2 = get_cheap_tickets(info2, 1200)
-
-# print(tix2)
-
-# for t in tix2:
-#     print(t["Price"])
+# print(maiden.get_cheap_tickets(175))
+# print(maiden.event_date)
+# print(nba.event_date)
+# print(gnr.event_date)
+# print(maiden.is_past())
+# print(nba.is_past())
+# print(gnr.is_past())
+# print(past.is_past())
+# print(gnr.event_json["Items"][0]["HasBestValue"])
+# for item in maiden.event_json["Items"]:
+#     if item["HasBestValue"]:
+#         print(item)
