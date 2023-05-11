@@ -8,3 +8,9 @@ document.getElementsByClassName("sc-kzXxXt hXIoxu")[0].children[0].innerText.spl
 
 // get the URL needed for the POST request later to get tickets info
 document.baseURI
+
+// get artist name/teams playing (i.e. event name)
+document.getElementsByClassName("sc-dIvrsQ biCrYn sc-gefSNk kanhIe")[0].innerText
+
+// get info for venue and city in form of "Venue, City, Province/State, Country"
+document.getElementsByClassName("sc-jxLJeF dyWfWP")[0].innerText
