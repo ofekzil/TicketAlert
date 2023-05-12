@@ -11,7 +11,7 @@ nba = Event(datetime.strptime("May 14 2023", "%b %d %Y"), "yourEmAiL@yahoo.com")
 gnr = Event(datetime.strptime("Oct 16 2023", "%b %d %Y"), "my.email@gmail.com")
 past = Event(datetime.strptime("Oct 03 2022", "%b %d %Y"), "AnAddress123@gmail.com")
 
-# common dummy data to all instances and cases
+# common dummy data to all instances and test cases
 email = "myEmail123@gmail.com"
 performer = "Some Band"
 venue = "Arena, City, Province, Country"
@@ -89,3 +89,10 @@ class TestEvent(unittest.TestCase):
     
     def test_notify_no_tix(self):
         self.assertEqual("No tickets below threshold. DO NOT SEND NOTIFICATION!", self.e1.notify([], performer, venue))
+    
+    def test_is_past(self):
+        self.assertFalse(self.e1.is_past())
+        self.e1.event_date = datetime.now()
+        self.assertFalse(self.e1.is_past())
+        self.e1.event_date = datetime.strptime("Oct 02 2022", "%b %d %Y")
+        self.assertTrue(self.e1.is_past())
