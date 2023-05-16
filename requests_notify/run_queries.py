@@ -57,3 +57,18 @@ def insert(info_json):
     db_conn.commit()
     cursor.close()
     db_conn.close()
+
+# delete all past events from the database, dates whose date has already passed
+def delete():
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+    except mysql.connector.Error as e:
+        print(e)
+    
+    cursor = db_conn.cursor()
+
+    cursor.execute("DELETE FROM EventInfo WHERE eventDate < DATE(NOW());")
+    db_conn.commit()
+    cursor.close()
+    db_conn.close()
+

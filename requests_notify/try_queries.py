@@ -1,4 +1,4 @@
-from run_queries import insert, USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE
+from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, insert, delete
 import mysql.connector
 
 e0 = {'performer':'Iron Maiden', 
@@ -16,12 +16,12 @@ e1 = {'performer':"Guns N' Roses",
 past = {'performer':"Some Artist",
         'venue':'Arena, City, Province',
         'eventDate':"Aug 13 2020",
-        'eventUrl':'https://ww.stubhub.ca/',
+        'eventUrl':'https://www.stubhub.ca/',
         'threshold':75,
         'email':'someEmail@mail.com'}
 
-insert(e1)
-
+# insert(past)
+delete()
 con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 cursor = con.cursor()
 cursor.execute("SELECT * FROM EventInfo;")
