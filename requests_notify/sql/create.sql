@@ -1,10 +1,10 @@
 CREATE TABLE EventInfo(
-    performer VARCHAR(100),
-    venue VARCHAR(150),
+    performer VARCHAR(200),
+    venue VARCHAR(200),
     eventDate DATE,
-    eventUrl VARCHAR(200),
+    eventUrl VARCHAR(400),
     threshold INTEGER,
-    email VARCHAR(100),
+    email VARCHAR(200),
     PRIMARY KEY(eventUrl, threshold, email)
 );
 
