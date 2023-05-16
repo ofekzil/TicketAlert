@@ -1,12 +1,15 @@
 import mysql.connector
 import os
 from event_info import Event 
+from datetime import datetime
 
 USERNAME = os.environ.get("USERNAME") 
 PASSWORD = os.environ.get("PASSWORD")
 ENDPOINT = os.environ.get("ENDPOINT")
 PORT = os.environ.get("PORT")
 DATABASE = os.environ.get("DATABASE")
+
+DATE_FORMAT = "%b %d %Y"
 
 def connect_to_db():
     try:
@@ -22,33 +25,35 @@ def disconnect_from_db():
     # cursor.close()
     db_conn.close()
 
+# function to create the EventInfo table from create.sql file
 def create_event_table():
-    db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
-    with open('./requests_notify/sql/create.sql', 'r') as sql:
-        with db_conn.cursor() as cursor:
-            cursor.execute(sql.read(), multi=True)
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+        with open('./requests_notify/sql/create.sql', 'r') as sql:
+            with db_conn.cursor() as cursor:
+                cursor.execute(sql.read(), multi=True)
+        db_conn.commit()
+        db_conn.close()
+    except mysql.connector.Error as e:
+        print(e)
+
+# insert data into EventInfo table
+# info_json is a dict of format {'performer' : str, 'venue':str, 'eventDate':str, 'eventUrl':str(url), 'threshold':int, 'email':str}
+# info_json will be given from caller (i.e. client side)
+# must convert eventDate to datetime object
+def insert(info_json):
+    info_json["eventDate"] = datetime.strptime(info_json["eventDate"], DATE_FORMAT)
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+    except mysql.connector.Error as e:
+        print(e)
+    
+    cursor = db_conn.cursor()
+    try:
+        cursor.execute("INSERT INTO EventInfo VALUES(%(performer)s, %(venue)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", info_json)
+    except mysql.connector.IntegrityError as e:
+        print("Duplicate value inserted. Error: {}".format(e))
+    
     db_conn.commit()
-    c = db_conn.cursor()
-    c.execute("select table_name from information_schema.tables;")
+    cursor.close()
     db_conn.close()
-
-
-con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT)
-cursor = con.cursor()
-cursor.execute("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='TicketAlert_DB' AND `TABLE_NAME`='EventInfo';")
-for row in cursor:
-    print(row)
-
-cursor.close()
-con.close()
-
-
-# cursor.execute("SELECT CURDATE();")
-
-# for row in cursor:
-#     print(row)
-
-# create_event_table()
-# conn = connect_to_db()
-# conn.cursor().execute("select table_name from information_schema.tables;")
-# disconnect_from_db()
