@@ -1,5 +1,6 @@
-from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, insert, delete
+from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, insert, delete, select
 import mysql.connector
+from datetime import datetime, date
 
 e0 = {'performer':'Iron Maiden', 
       'venue':'Rogers Arena, Vancouver, British Columbia',
@@ -19,13 +20,30 @@ past = {'performer':"Some Artist",
         'eventUrl':'https://www.stubhub.ca/',
         'threshold':75,
         'email':'someEmail@mail.com'}
+nullvenue = {'performer':"Some Artist",
+        'venue':None,
+        'eventDate':"Aug 13 2023",
+        'eventUrl':'https://www.stubhub.ca/',
+        'threshold':60,
+        'email':'someEmail@gmail.com'}
+novenue = {'performer':"Some Artist",
+        'eventDate':"Aug 13 2023",
+        'eventUrl':'https://www.stubhub.ca/',
+        'threshold':45,
+        'email':'someEmail@gmail.com'}
 
-# insert(past)
-delete()
-con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
-cursor = con.cursor()
-cursor.execute("SELECT * FROM EventInfo;")
-for (performer, venue, eventDate, eventUrl, threshold, email) in cursor:
-    print(performer, venue, eventDate, eventUrl, threshold, email)
-cursor.close()
-con.close()
+select()
+# insert(novenue)
+# delete()
+# con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+# cursor = con.cursor()
+# cursor.execute("DELETE FROM EventInfo WHERE eventUrl = 'https://www.stubhub.ca/'")
+# cursor.execute("INSERT INTO EventInfo(performer, eventDate, eventUrl, threshold, email) VALUES(%(performer)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", novenue)
+# con.commit()
+# cursor.execute("SELECT * FROM EventInfo;")
+# for (performer, venue, eventDate, eventUrl, threshold, email) in cursor:
+#     print(performer, venue, eventDate, eventUrl, threshold, email)
+# for row in cursor.fetchall():
+#     print(type(row), row)
+# cursor.close()
+# con.close()

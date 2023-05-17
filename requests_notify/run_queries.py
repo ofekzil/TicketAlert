@@ -72,3 +72,28 @@ def delete():
     cursor.close()
     db_conn.close()
 
+# selects all future events, gets cheap tickets and sends notification to user
+# if there is no date provided, default to end of current year
+def select():
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+    except mysql.connector.Error as e:
+        print(e)
+    
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT * FROM EventInfo WHERE eventDate >= DATE(NOW())")
+    rows = cursor.fetchall()
+
+    # tuples are of order (performer, venue, eventDate, eventUrl, threshold, email), same as rows in DB, including null values
+    for row in rows:
+        event = Event((datetime(datetime.now().year, 12, 31) if row[2] == None else row[2]), row[5])
+        event.get_event_info(row[3])
+        cheap_tix = event.get_cheap_tickets(row[4])
+        notification = event.notify(cheap_tix, ("Performer" if row[0] == None else row[0]), 
+                     ("Venue" if row[1] == None else row[1]))
+        print(notification)
+    cursor.close()
+    db_conn.close()
+    
+    
+
