@@ -22,6 +22,8 @@ class Event:
     # return json representation of event from given url
     # can change PageSize to control number of returned results 
     # method will be tested in integration, not unit tests
+    # TODO: If event is past, info.url != url, which may be useful for later
+    #       In that case tehre may also not be a json attribute available 
     def get_event_info(self, url):
         info = requests.post(url, json={"SortBy" : "Price", "PageSize" : 50})
         self.event_json = info.json()

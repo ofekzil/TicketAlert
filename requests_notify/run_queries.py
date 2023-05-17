@@ -11,19 +11,12 @@ DATABASE = os.environ.get("DATABASE")
 
 DATE_FORMAT = "%b %d %Y"
 
-def connect_to_db():
-    try:
-        db_conn = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
-        print(db_conn)
-        # cursor = db_conn.cursor()
-        return db_conn
-    except mysql.connector.Error as e:
-        print(e)
-
-def disconnect_from_db():
-    global cursor, db_conn
-    # cursor.close()
-    db_conn.close()
+PERFORMER_IDX = 0
+VENUE_IDX = 1
+DATE_IDX = 2
+URL_IDX = 3
+THRESHOLD_IDX = 4
+EMAIL_IDX = 5
 
 # function to create the EventInfo table from create.sql file
 def create_event_table():
@@ -38,13 +31,14 @@ def create_event_table():
         print(e)
 
 # insert data into EventInfo table
-# info_json is a dict of format {'performer' : str, 'venue':str, 'eventDate':str, 'eventUrl':str(url), 'threshold':int, 'email':str}
+# info_json is a dict of format {'performer' : str, 'venue':str, 'eventDate':str or form (Mon Date(int) Year(int)), 
+#                                 'eventUrl':str(url), 'threshold':int, 'email':str}
 # info_json will be given from caller (i.e. client side)
 # must convert eventDate to datetime object
 def insert(info_json):
     info_json["eventDate"] = datetime.strptime(info_json["eventDate"], DATE_FORMAT)
     try:
-        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+        db_conn = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
     except mysql.connector.Error as e:
         print(e)
     
@@ -81,16 +75,17 @@ def select():
         print(e)
     
     cursor = db_conn.cursor()
-    cursor.execute("SELECT * FROM EventInfo WHERE eventDate >= DATE(NOW())")
+    cursor.execute("SELECT performer, venue, eventDate, eventUrl, threshold, email "\
+                    "FROM EventInfo WHERE eventDate >= DATE(NOW())")
     rows = cursor.fetchall()
 
     # tuples are of order (performer, venue, eventDate, eventUrl, threshold, email), same as rows in DB, including null values
     for row in rows:
-        event = Event((datetime(datetime.now().year, 12, 31) if row[2] == None else row[2]), row[5])
-        event.get_event_info(row[3])
-        cheap_tix = event.get_cheap_tickets(row[4])
-        notification = event.notify(cheap_tix, ("Performer" if row[0] == None else row[0]), 
-                     ("Venue" if row[1] == None else row[1]))
+        event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
+        event.get_event_info(row[URL_IDX])
+        cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
+        notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]), 
+                     ("Venue" if row[VENUE_IDX] == None else row[VENUE_IDX]))
         print(notification)
     cursor.close()
     db_conn.close()
