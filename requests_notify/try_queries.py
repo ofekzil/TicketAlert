@@ -1,19 +1,22 @@
-from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, insert, delete, select
+from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, SENDER, insert, delete, select, send_notification
 import mysql.connector
 from datetime import datetime, date
+import os
+
+RECEIVER = os.environ.get("RECEIVER")
 
 e0 = {'performer':'Iron Maiden', 
       'venue':'Rogers Arena, Vancouver, British Columbia',
       'eventDate':'Oct 02 2023',
       'eventUrl':"https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/",
       'threshold':160,
-      'email':'ticketreciever@yahoo.com'}
+      'email':RECEIVER}
 e1 = {'performer':"Guns N' Roses", 
       'venue':'BC Place Stadium, Vancouver, British Columbia',
       'eventDate':'Oct 16 2023',
       'eventUrl':"https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/",
       'threshold':140,
-      'email':'ticketreciever@yahoo.com'}
+      'email':RECEIVER}
 past = {'performer':"Some Artist",
         'venue':'Arena, City, Province',
         'eventDate':"Aug 13 2020",
@@ -32,12 +35,14 @@ novenue = {'performer':"Some Artist",
         'threshold':45,
         'email':'someEmail@gmail.com'}
 
-select()
+# print(RECEIVER)
+#send_notification("I have some tickets available", RECEIVER)
+# select()
 # insert(novenue)
 # delete()
 # con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 # cursor = con.cursor()
-# cursor.execute("DELETE FROM EventInfo WHERE eventUrl = 'https://www.stubhub.ca/'")
+# cursor.execute("UPDATE EventInfo SET email = 'ticketalertreceiver@gmail.com'")
 # cursor.execute("INSERT INTO EventInfo(performer, eventDate, eventUrl, threshold, email) VALUES(%(performer)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", novenue)
 # con.commit()
 # cursor.execute("SELECT * FROM EventInfo;")

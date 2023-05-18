@@ -37,13 +37,13 @@ t2 = {"Items" : [{"Price" : "C$100", "PriceWithFees" : "", "Section":"102", "Row
 t2_under130 = [{"Price" : "C$100", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
                {"Price" : "C$123", "Section" : "FLOOR", "Row" :"", "Quantity Range" : "1 - 5"},
                {"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"}]
-t1_under130_notify = "Email will be sent to: " + email + ".\nMessage: There are tickets available for " + performer \
+t1_under130_notify =          "\nThere are tickets available for " + performer \
                             + " at venue " + venue + " on " + date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
                             " available after this message is sent.\nThe following are some of the available tickets for you:\n"\
                             + "Price: C$125, Section: 102, Row: 14, Seat Quantity Range: 1 - 3\n" \
                             + "Price: C$75, Section: 325, Row: 10, Seat Quantity Range: 1\n"
-t2_under130_notify = "Email will be sent to: " + email + ".\nMessage: There are tickets available for " + performer \
+t2_under130_notify =        "\nThere are tickets available for " + performer \
                             + " at venue " + venue + " on " + date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
                             " available after this message is sent.\nThe following are some of the available tickets for you:\n"\
@@ -96,3 +96,6 @@ class TestEvent(unittest.TestCase):
         self.assertFalse(self.e1.is_past())
         self.e1.event_date = datetime.strptime("Oct 02 2022", "%b %d %Y")
         self.assertTrue(self.e1.is_past())
+
+if __name__ == '__main__':
+    unittest.main()

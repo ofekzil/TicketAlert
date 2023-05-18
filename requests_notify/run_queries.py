@@ -2,6 +2,7 @@ import mysql.connector
 import os
 from event_info import Event 
 from datetime import datetime
+import boto3
 
 USERNAME = os.environ.get("USERNAME") 
 PASSWORD = os.environ.get("PASSWORD")
@@ -17,6 +18,27 @@ DATE_IDX = 2
 URL_IDX = 3
 THRESHOLD_IDX = 4
 EMAIL_IDX = 5
+
+SENDER = os.environ.get("SENDER")
+client = boto3.client("ses")
+
+# send notification to email using Amazon SES
+def send_notification(notification, email):
+    if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
+        response = client.send_email(
+            Source=SENDER,
+            Destination={"ToAddresses":[email]},
+            Message={
+                "Body":{
+                    "Text" : {"Data" : (notification), "Charset" : "UTF-8"},
+                },
+                "Subject":{
+                    "Data":"Notification for Available Tickets",
+                    "Charset":"UTF-8"
+                }
+            }        
+        )
+        print(response)
 
 # function to create the EventInfo table from create.sql file
 def create_event_table():
@@ -87,6 +109,7 @@ def select():
         notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]), 
                      ("Venue" if row[VENUE_IDX] == None else row[VENUE_IDX]))
         print(notification)
+        # send_notification(notification, row[EMAIL_IDX])
     cursor.close()
     db_conn.close()
     

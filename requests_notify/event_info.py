@@ -81,7 +81,7 @@ class Event:
         if (len(cheap_tickets) == 0):
             return "No tickets below threshold. DO NOT SEND NOTIFICATION!"
         else:
-            notification = "Email will be sent to: " + self.email + ".\nMessage: There are tickets available for " + performer \
+            notification = "\nThere are tickets available for " + performer \
                             + " at venue " + venue + " on " + self.event_date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
                             " available after this message is sent.\nThe following are some of the available tickets for you:\n"
