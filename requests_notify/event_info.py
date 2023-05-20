@@ -34,6 +34,24 @@ class Event:
     def is_past(self):
         return datetime.now() > self.event_date
 
+    # return numeric representation of the price
+    def get_price(self, price_str):
+        nums = re.findall(r'\d+', price_str)
+        res = 0
+        if (len(nums) > 1):
+            fact = 1
+            i = len(nums) - 1
+            while (i >= 0):
+                res += int(int(nums[i])*fact)
+                fact *= 1000
+                i -= 1
+        else:
+            res += int(nums[0])
+        return res
+    
+    def get_price_from_seat(self, seat):
+        return self.get_price(seat["Price"])
+
     # return an array of json objects w/ price and seat availability for event where price is <= threshold
     def get_cheap_tickets(self, threshold):
         items = self.event_json["Items"]
@@ -58,33 +76,19 @@ class Event:
                 ticket = {"Price" : price_str, "Section" : item["Section"], "Row" : item["Row"], 
                         "Quantity Range" : item["QuantityRange"]}
                 seats.append(ticket)
+        seats.sort(key=self.get_price_from_seat)
         return seats
-
-    # return numeric representation of the price
-    def get_price(self, price_str):
-        nums = re.findall(r'\d+', price_str)
-        res = 0
-        if (len(nums) > 1):
-            fact = 1
-            i = len(nums) - 1
-            while (i >= 0):
-                res += int(int(nums[i])*fact)
-                fact *= 1000
-                i -= 1
-        else:
-            res += int(nums[0])
-        return res
     
     # construct message for email notification using info in cheap_tickets, performer and venue
     # performer and venue will be kept in DB and retrieved directly from HTML
-    def notify(self, cheap_tickets, performer, venue):
+    def notify(self, cheap_tickets, performance):
         if (len(cheap_tickets) == 0):
             return "No tickets below threshold. DO NOT SEND NOTIFICATION!"
         else:
-            notification = "\nThere are tickets available for " + performer \
-                            + " at venue " + venue + " on " + self.event_date.strftime("%m/%d/%Y") + " as of " \
+            notification = "\nThere are tickets available for " + performance \
+                            + " on " + self.event_date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
-                            " available after this message is sent.\nThe following are some of the available tickets for you:\n"
+                            " available after this message is sent.\nThe following are some of the available tickets for you:\n\n"
             for t in cheap_tickets:
                 notification += "Price: " + t["Price"] + ", Section: " + t["Section"] + ", Row: " + t["Row"] + ", Seat Quantity Range: " + t["Quantity Range"] + "\n"
             return notification

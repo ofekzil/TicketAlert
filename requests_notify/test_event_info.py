@@ -6,16 +6,15 @@ from datetime import datetime
 url0 = "https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/"
 url1 = "https://www.stubhub.ca/boston-celtics-boston-tickets-5-14-2023/event/151513498/"
 url2 = "https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/"
-maiden = Event(datetime.strptime("Oct 02 2023", "%b %d %Y"), "example@gmail.com")
-nba = Event(datetime.strptime("May 14 2023", "%b %d %Y"), "yourEmAiL@yahoo.com")
-gnr = Event(datetime.strptime("Oct 16 2023", "%b %d %Y"), "my.email@gmail.com")
-past = Event(datetime.strptime("Oct 03 2022", "%b %d %Y"), "AnAddress123@gmail.com")
+maiden = Event(datetime.strptime("10 02 2023", "%m %d %Y"), "example@gmail.com")
+nba = Event(datetime.strptime("5 14 2023", "%m %d %Y"), "yourEmAiL@yahoo.com")
+gnr = Event(datetime.strptime("10 16 2023", "%m %d %Y"), "my.email@gmail.com")
+past = Event(datetime.strptime("10 03 2022", "%m %d %Y"), "AnAddress123@gmail.com")
 
 # common dummy data to all instances and test cases
 email = "myEmail123@gmail.com"
-performer = "Some Band"
-venue = "Arena, City, Province, Country"
-date = datetime.strptime("Oct 02 2023", "%b %d %Y")
+performance = "Some Band City"
+date = datetime.strptime("10 02 2023", "%m %d %Y")
 
 # object jsons contain only relevant fields needed. 
 # Actual data retrived from POST has more attributes that are not necessary right now
@@ -24,32 +23,34 @@ t1 = {"Items" : [{"Price" : "C$100", "PriceWithFees" : "C$125", "Section":"102",
                  {"Price" : "C$123", "PriceWithFees" : "C$147", "Section":"FLOOR", "Row":"", "QuantityRange" : "1 - 5"},
                  {"Price" : "C$50", "PriceWithFees" : "C$75", "Section":"325", "Row":"10", "QuantityRange" : "1"},
                  {"Price" : "C$260", "PriceWithFees" : "C$285", "Section":"B7", "Row":"2", "QuantityRange" : "1 - 2"}]}
-t1_all = [{"Price" : "C$125", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
-               {"Price" : "C$147", "Section" : "FLOOR", "Row" :"", "Quantity Range" : "1 - 5"},
-               {"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"},
-               {"Price" : "C$285", "Section" : "B7", "Row" :"2", "Quantity Range" : "1 - 2"}]
-t1_under130 = [{"Price" : "C$125", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
-               {"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"}]
+t1_all = [{"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"},
+          {"Price" : "C$125", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
+          {"Price" : "C$147", "Section" : "FLOOR", "Row" :"", "Quantity Range" : "1 - 5"},
+          {"Price" : "C$285", "Section" : "B7", "Row" :"2", "Quantity Range" : "1 - 2"}]
+t1_under130 = [{"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"},
+               {"Price" : "C$125", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"}]
 t2 = {"Items" : [{"Price" : "C$100", "PriceWithFees" : "", "Section":"102", "Row":"14", "QuantityRange" : "1 - 3"},
                  {"Price" : "C$123", "PriceWithFees" : None, "Section":"FLOOR", "Row":"", "QuantityRange" : "1 - 5"},
                  {"Price" : "C$50", "PriceWithFees" : "C$75", "Section":"325", "Row":"10", "QuantityRange" : "1"},
                  {"Price" : "C$260", "PriceWithFees" : "C$285", "Section":"B7", "Row":"2", "QuantityRange" : "1 - 2"}]}
-t2_under130 = [{"Price" : "C$100", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
-               {"Price" : "C$123", "Section" : "FLOOR", "Row" :"", "Quantity Range" : "1 - 5"},
-               {"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"}]
-t1_under130_notify =          "\nThere are tickets available for " + performer \
-                            + " at venue " + venue + " on " + date.strftime("%m/%d/%Y") + " as of " \
+t2_under130 = [{"Price" : "C$75", "Section" : "325", "Row" :"10", "Quantity Range" : "1"},
+               {"Price" : "C$100", "Section" : "102", "Row" :"14", "Quantity Range" : "1 - 3"},
+               {"Price" : "C$123", "Section" : "FLOOR", "Row" :"", "Quantity Range" : "1 - 5"}]
+
+t1_under130_notify =          "\nThere are tickets available for " + performance \
+                            + " on " + date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
-                            " available after this message is sent.\nThe following are some of the available tickets for you:\n"\
-                            + "Price: C$125, Section: 102, Row: 14, Seat Quantity Range: 1 - 3\n" \
-                            + "Price: C$75, Section: 325, Row: 10, Seat Quantity Range: 1\n"
-t2_under130_notify =        "\nThere are tickets available for " + performer \
-                            + " at venue " + venue + " on " + date.strftime("%m/%d/%Y") + " as of " \
+                            " available after this message is sent.\nThe following are some of the available tickets for you:\n\n"\
+                            + "Price: C$75, Section: 325, Row: 10, Seat Quantity Range: 1\n" \
+                            + "Price: C$125, Section: 102, Row: 14, Seat Quantity Range: 1 - 3\n"
+t2_under130_notify =        "\nThere are tickets available for " + performance \
+                            + " on " + date.strftime("%m/%d/%Y") + " as of " \
                             + datetime.now().strftime("%m/%d/%Y %H:%M:%S") + ". There is no guarantee tickets will still be"\
-                            " available after this message is sent.\nThe following are some of the available tickets for you:\n"\
+                            " available after this message is sent.\nThe following are some of the available tickets for you:\n\n"\
+                            + "Price: C$75, Section: 325, Row: 10, Seat Quantity Range: 1\n" \
                             + "Price: C$100, Section: 102, Row: 14, Seat Quantity Range: 1 - 3\n" \
-                            + "Price: C$123, Section: FLOOR, Row: , Seat Quantity Range: 1 - 5\n" \
-                            + "Price: C$75, Section: 325, Row: 10, Seat Quantity Range: 1\n"
+                            + "Price: C$123, Section: FLOOR, Row: , Seat Quantity Range: 1 - 5\n"
+                            
 
 class TestEvent(unittest.TestCase):
     
@@ -84,11 +85,11 @@ class TestEvent(unittest.TestCase):
         self.assertListEqual(t1_all, self.e1.get_cheap_tickets(300))
 
     def test_notify_tix(self):
-        self.assertEqual(t1_under130_notify, self.e1.notify(t1_under130, performer, venue))
-        self.assertEqual(t2_under130_notify, self.e1.notify(t2_under130, performer, venue))
+        self.assertEqual(t1_under130_notify, self.e1.notify(t1_under130, performance))
+        self.assertEqual(t2_under130_notify, self.e1.notify(t2_under130, performance))
     
     def test_notify_no_tix(self):
-        self.assertEqual("No tickets below threshold. DO NOT SEND NOTIFICATION!", self.e1.notify([], performer, venue))
+        self.assertEqual("No tickets below threshold. DO NOT SEND NOTIFICATION!", self.e1.notify([], performance))
     
     def test_is_past(self):
         self.assertFalse(self.e1.is_past())

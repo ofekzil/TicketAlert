@@ -10,14 +10,13 @@ ENDPOINT = os.environ.get("ENDPOINT")
 PORT = os.environ.get("PORT")
 DATABASE = os.environ.get("DATABASE")
 
-DATE_FORMAT = "%b %d %Y"
+DATE_FORMAT = "%m %d %Y"
 
 PERFORMER_IDX = 0
-VENUE_IDX = 1
-DATE_IDX = 2
-URL_IDX = 3
-THRESHOLD_IDX = 4
-EMAIL_IDX = 5
+DATE_IDX = 1
+URL_IDX = 2
+THRESHOLD_IDX = 3
+EMAIL_IDX = 4
 
 SENDER = os.environ.get("SENDER")
 client = boto3.client("ses")
@@ -53,7 +52,7 @@ def create_event_table():
         print(e)
 
 # insert data into EventInfo table
-# info_json is a dict of format {'performer' : str, 'venue':str, 'eventDate':str or form (Mon Date(int) Year(int)), 
+# info_json is a dict of format {'performerAndCity' : str, 'eventDate':str or form (Mon(int) Date(int) Year(int)), 
 #                                 'eventUrl':str(url), 'threshold':int, 'email':str}
 # info_json will be given from caller (i.e. client side)
 # must convert eventDate to datetime object
@@ -66,7 +65,7 @@ def insert(info_json):
     
     cursor = db_conn.cursor()
     try:
-        cursor.execute("INSERT INTO EventInfo VALUES(%(performer)s, %(venue)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", info_json)
+        cursor.execute("INSERT INTO EventInfo VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", info_json)
     except mysql.connector.IntegrityError as e:
         print("Duplicate value inserted. Error: {}".format(e))
     
@@ -97,7 +96,7 @@ def select():
         print(e)
     
     cursor = db_conn.cursor()
-    cursor.execute("SELECT performer, venue, eventDate, eventUrl, threshold, email "\
+    cursor.execute("SELECT performerAndCity, eventDate, eventUrl, threshold, email "\
                     "FROM EventInfo WHERE eventDate >= DATE(NOW())")
     rows = cursor.fetchall()
 
@@ -106,8 +105,7 @@ def select():
         event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
         event.get_event_info(row[URL_IDX])
         cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
-        notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]), 
-                     ("Venue" if row[VENUE_IDX] == None else row[VENUE_IDX]))
+        notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
         print(notification)
         # send_notification(notification, row[EMAIL_IDX])
     cursor.close()

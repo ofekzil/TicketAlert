@@ -1,12 +1,21 @@
 CREATE TABLE EventInfo(
-    performer VARCHAR(200),
-    venue VARCHAR(200),
+    performerAndCity VARCHAR(300),
     eventDate DATE,
     eventUrl VARCHAR(400),
     threshold INTEGER,
     email VARCHAR(200),
     PRIMARY KEY(eventUrl, threshold, email)
 );
+
+-- CREATE TABLE EventInfoOld(
+--     performer VARCHAR(200),
+--     venue VARCHAR(200),
+--     eventDate DATE,
+--     eventUrl VARCHAR(400),
+--     threshold INTEGER,
+--     email VARCHAR(200),
+--     PRIMARY KEY(eventUrl, threshold, email)
+-- );
 
 -- example queries:
 -- INSERT INTO EventInfo VALUES(...)
