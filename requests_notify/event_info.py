@@ -26,8 +26,11 @@ class Event:
     #       In that case tehre may also not be a json attribute available 
     def get_event_info(self, url):
         info = requests.post(url, json={"SortBy" : "Price", "PageSize" : 50})
-        self.event_json = info.json()
-        # return info.json()
+        if (info.url == url):
+            self.event_json = info.json()
+            return True
+        else:
+            return False
     
     # check if the event has already passed (event datetime < current datetime)
     # in future filtering may be done when selecting from DB, and not necessarily here, but will keep function for now

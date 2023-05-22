@@ -32,6 +32,13 @@ while (i < info.length) {
 performer = performer.substring(0, performer.length - 1)
 date = date.substring(0, date.length - 1) // date is of format
 
+// function to validate url using regex, check it's a proper stubhub event page
+function validateUrl(url) {
+    let pattern = /https:\/\/www\.stubhub(\.[a-z]+)+\/([a-z]+\-)+tickets\-(\d{1,2}-){2}\d{4}\/event\/\d+\//
+    return pattern.test(url)
+}
+
+
 // DON'T USE THIS!!! HTML UNRELIABLE, CHNAGES OFTEN!!!
  
 // get date and time of event in string format from StubHub HTML

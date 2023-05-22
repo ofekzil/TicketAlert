@@ -103,11 +103,11 @@ def select():
     # tuples are of order (performer, venue, eventDate, eventUrl, threshold, email), same as rows in DB, including null values
     for row in rows:
         event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
-        event.get_event_info(row[URL_IDX])
-        cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
-        notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
-        print(notification)
-        # send_notification(notification, row[EMAIL_IDX])
+        if (event.get_event_info(row[URL_IDX])):
+            cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
+            notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
+            print(notification)
+            # send_notification(notification, row[EMAIL_IDX])
     cursor.close()
     db_conn.close()
     
