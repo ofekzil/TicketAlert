@@ -21,6 +21,9 @@ EMAIL_IDX = 4
 SENDER = os.environ.get("SENDER")
 client = boto3.client("ses")
 
+def hello():
+    return "Hello there"
+
 # send notification to email using Amazon SES
 def send_notification(notification, email):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
