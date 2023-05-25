@@ -24,7 +24,7 @@ class Event:
     # TODO: If event is past, info.url != url, which may be useful for later
     #       In that case tehre may also not be a json attribute available 
     def get_event_info(self, url):
-        info = requests.post(url, json={"SortBy" : "Price", "PageSize" : 50})
+        info = requests.post(url, json={"SortBy" : "Price"})
         if (info.url == url):
             self.event_json = info.json()
             return True

@@ -19,14 +19,11 @@ THRESHOLD_IDX = 3
 EMAIL_IDX = 4
 
 SENDER = os.environ.get("SENDER")
-client = boto3.client("ses")
-
-def hello():
-    return "Hello there"
 
 # send notification to email using Amazon SES
-def send_notification(notification, email):
+def send_notification(notification, email, performance):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
+        client = boto3.client("ses")
         response = client.send_email(
             Source=SENDER,
             Destination={"ToAddresses":[email]},
@@ -35,7 +32,7 @@ def send_notification(notification, email):
                     "Text" : {"Data" : (notification), "Charset" : "UTF-8"},
                 },
                 "Subject":{
-                    "Data":"Notification for Available Tickets",
+                    "Data":"Notification for Available Tickets for: " + performance,
                     "Charset":"UTF-8"
                 }
             }        
@@ -73,10 +70,14 @@ def insert(info_json):
         print("Duplicate value inserted. Error: {}".format(e))
     
     db_conn.commit()
+
+    # cursor.execute("SELECT * FROM EventInfo")
+    # for row in cursor.fetchall():
+    #     print(row)
     cursor.close()
     db_conn.close()
 
-# delete all past events from the database, dates whose date has already passed
+# delete all past events from the database, ones whose date has already passed
 def delete():
     try:
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
@@ -87,6 +88,9 @@ def delete():
 
     cursor.execute("DELETE FROM EventInfo WHERE eventDate < DATE(NOW());")
     db_conn.commit()
+    cursor.execute("SELECT * FROM EventInfo")
+    for row in cursor.fetchall():
+        print(row)
     cursor.close()
     db_conn.close()
 
@@ -110,7 +114,8 @@ def select():
             cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
             notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
             print(notification)
-            # send_notification(notification, row[EMAIL_IDX])
+            # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX])
+    
     cursor.close()
     db_conn.close()
     
