@@ -4,8 +4,8 @@ let url = document.baseURI.split('?')[0]
 let info = url.split('/')[3].split('-') // always at index 3 as indices 0,1,2 have values [https,'', www.stubhub.ca] no matter the event
 
 // check if str begins with a lowercase english char
-let pattern = /[a-z].*/
 function capitalizeFirst(str) {
+    let pattern = /[a-z].*/
     return pattern.test(str) ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 }
 
@@ -38,6 +38,59 @@ function validateUrl(url) {
     return pattern.test(url)
 }
 
+// get the coordinates of the user. 
+// Stored in lng and lat. Might turn into globals or return them.
+// Currently requires user permission from tab, but can be avoided if permissions are given in Chrome extension
+function getCoords() {
+    let lng, lat;
+    navigator.geolocation.getCurrentPosition(
+        // Success callback function
+        (position) => {
+            // Get the user's latitude and longitude coordinates
+            lat = position.coords.latitude;
+            lng = position.coords.longitude;
+            
+            // Do something with the location data, send it to the JSON to be sent to Lambda
+            console.log(`latitude: ${lat}, longitude: ${lng}`);
+        },
+
+        // Error callback function
+        (error) => {
+            // Handle errors, e.g. user denied location sharing permissions
+            console.error("Error getting user location:", error);
+        }
+    );
+}
+
+// gets a list of currency codes
+Intl.supportedValuesOf("currency")
+
+// to send api call to invoke lambda w/ data to insert
+// likely works, can also maybe use fetch
+var request = new XMLHttpRequest();
+request.open("POST", apiGatewayUrl)
+request.send({"operation" : "insert", "info" : 
+            {"performerAndCity" : "performer and city", "eventDate" : " 8 9 2024", "eventUrl" : "https://www.stubhub.com",
+        "threshold" : 30, "email" : "myEmail@gmail.com"}})
+
+// api call w/ fetch (works from extension console)
+
+function postFetch(url, sendData) {
+
+    fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(sendData),
+            })
+            .then((res) => res.json())
+            .then((json) => {
+                console.log(json);
+                });
+    }
+
+postFetch("https://msyrsthbu1.execute-api.us-west-1.amazonaws.com/test/savedata", 
+            {operation : "insert", "info" : 
+            {"performerAndCity" : "performer and city", "eventDate" : " 8 9 2024", "eventUrl" : "https://www.stubhub.com",
+             "threshold" : 30, "email" : "myEmail@gmail.com"}})
 
 // DON'T USE THIS!!! HTML UNRELIABLE, CHNAGES OFTEN!!!
  

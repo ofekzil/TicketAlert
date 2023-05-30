@@ -2,7 +2,8 @@ import requests
 import re
 from datetime import datetime 
 
-# class representing an event on StubHub
+# TODO: Work out currency conversions in event model (DB, class, notification)
+# class representing an event on StubHub. Corresponds to a database entry
 class Event:
 
     # values initialized in the constructor will first be part of dummy data used for testing

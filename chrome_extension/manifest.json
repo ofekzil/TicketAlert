@@ -1,0 +1,10 @@
+{
+    "manifest_version" : 3,
+    "name" : "Ticket Alert",
+    "version" : "1.0",
+    "description" : "collects info from user and webpage and sends it to lambda for processing",
+    "permissions" : ["scripting", "tabs"],
+    "action" : {
+        "default_popup" : "./extension/popup.html"
+    }
+}
