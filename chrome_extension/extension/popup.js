@@ -3,12 +3,12 @@ const URL_PATTERN = /https:\/\/www\.stubhub(\.[a-z]+)+\/([a-z]+\-)+tickets\-(\d{
 const EMAIL_PATTERN = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/;
 
 
-// check if url represents a stubhub event page
-function validate(url, pattern) {
-    return pattern.test(url);
+// check if str matches regex pattern
+function validate(str, pattern) {
+    return pattern.test(str);
 }
 
-// check if str begins with a lowercase english char
+// check if str begins with a lowercase english char, and if so capitalize the first letter
 function capitalizeFirst(str) {
     let pattern = /[a-z].*/;
     return pattern.test(str) ? str.charAt(0).toUpperCase() + str.slice(1) : str;
@@ -63,7 +63,7 @@ function buttonListener() {
             return;
         }
         const threshold = Number(document.getElementById("threshold").value);
-        if (threshold < 0 || !Number.isInteger(threshold)) {
+        if (threshold <= 0 || !Number.isInteger(threshold)) {
             alert("Price threshold must be a positive integer");
             return;
         }
