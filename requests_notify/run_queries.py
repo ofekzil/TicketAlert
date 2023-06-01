@@ -71,9 +71,9 @@ def insert(info_json):
     
     db_conn.commit()
 
-    # cursor.execute("SELECT * FROM EventInfo")
-    # for row in cursor.fetchall():
-    #     print(row)
+    cursor.execute("SELECT * FROM EventInfo")
+    for row in cursor.fetchall():
+        print(row)
     cursor.close()
     db_conn.close()
 
@@ -114,6 +114,7 @@ def select():
             cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
             notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
             print(notification)
+            # uncomment below line to send email notifications. It's commented out so messages aren't sent when not needed
             # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX])
     
     cursor.close()

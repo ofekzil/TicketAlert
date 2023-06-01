@@ -65,6 +65,9 @@ function getCoords() {
 // gets a list of currency codes
 Intl.supportedValuesOf("currency")
 
+// get timezone of the page
+Intl.DateTimeFormat().resolvedOptions().timeZone
+
 // to send api call to invoke lambda w/ data to insert
 // likely works, can also maybe use fetch
 var request = new XMLHttpRequest();

@@ -58,7 +58,7 @@ function postFetch(url, sendData) {
 function buttonListener() {
     document.getElementById("submit").addEventListener('click', () => {
         const email = document.getElementById("email").value;
-        if (!validate(email, EMAIL_PATTERN)) {
+        if (!validate(email.toLowerCase(), EMAIL_PATTERN)) {
             alert("Please enter a valid email address");
             return;
         }
@@ -76,6 +76,8 @@ function buttonListener() {
                 const info = setInfo(url, email, threshold);
                 console.log(info);
                 postFetch(API, {operation : "insert", info : info});
+                alert("Your information has been saved, and you will receive " +
+                        "a notification once tickets are available subject to your threshold");
             } else {
                 alert("You must be in a StubHub event page operate extension");
             }
