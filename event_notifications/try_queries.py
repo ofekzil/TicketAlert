@@ -1,4 +1,4 @@
-from run_queries import USERNAME, PASSWORD, ENDPOINT, PORT, DATABASE, SENDER, insert, delete, select, send_notification, create_event_table
+from run_queries import *
 import mysql.connector
 from datetime import datetime, date
 import os
@@ -83,7 +83,7 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 # insert(alice)
 # insert(rockville)
 # delete()
-# select()
+select()
 # con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 # cursor = con.cursor()
 # cursor.execute("UPDATE EventInfo SET email = 'ticketalertreceiver@gmail.com'")
@@ -98,3 +98,20 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 #     print(row)
 # cursor.close()
 # con.close()
+
+# create_verification_template()
+
+# print(ses_client.get_custom_verification_email_template(TemplateName="TicketEmailVerification"))
+
+# verify_email(RECEIVER)
+# print(ses_client.verify_email_identity(EmailAddress=RECEIVER))
+
+# ids = ses_client.list_identities(IdentityType="EmailAddress")
+# print(ids)
+# print(ses_client.get_identity_verification_attributes(Identities=ids["Identities"]))
+
+# print(is_verified(RECEIVER))
+# print(is_verified(SENDER))
+# print(is_verified("someEmail@outlook.ca"))
+
+# send_unsubscribe_notification(RECEIVER, "Iron Maiden Vancouver", datetime.strptime("10 2 2023", DATE_FORMAT))

@@ -76,8 +76,9 @@ function buttonListener() {
                 const info = setInfo(url, email, threshold);
                 console.log(info);
                 postFetch(API, {operation : "insert", info : info});
-                alert("Your information has been saved, and you will receive " +
-                        "a notification once tickets are available subject to your threshold");
+                alert("Your information has been saved. You should next receive " +
+                        "an email asking you to confirm your subscription (check your spam folder), " +
+                        "and following that a notification once tickets are available below the threshold.");
             } else {
                 alert("You must be in a StubHub event page operate extension");
             }

@@ -20,11 +20,23 @@ EMAIL_IDX = 4
 
 SENDER = os.environ.get("SENDER")
 
+ses_client = boto3.client("ses")
+
+# sends verification email to given email address
+# sends the default AWS verification email, NOT a custom one
+def verify_email(email):
+    response = ses_client.verify_email_identity(EmailAddress=email)
+    print(response)
+
+# check if given email address is verified
+def is_verified(email):
+    res = ses_client.get_identity_verification_attributes(Identities=[email])
+    return email in res["VerificationAttributes"] and res["VerificationAttributes"][email]["VerificationStatus"] == "Success"
+
 # send notification to email using Amazon SES
 def send_notification(notification, email, performance):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
-        client = boto3.client("ses")
-        response = client.send_email(
+        response = ses_client.send_email(
             Source=SENDER,
             Destination={"ToAddresses":[email]},
             Message={
@@ -39,6 +51,25 @@ def send_notification(notification, email, performance):
         )
         print(response)
 
+# sends unsubscription notification when event has passed
+def send_unsubscribe_notification(email, performance, date):
+    notification = "This email is a notification that you will no longer receive notifications of tickets for " \
+                    + performance + " on " + date.strftime("%m/%d/%Y") + ", as the event has already passed as of " \
+                    + datetime.now().strftime("%m/%d/%Y") + ".\nThank you for using this service for your ticket notifications!"
+    response = ses_client.send_email(Source=SENDER,
+                                    Destination={"ToAddresses":[email]},
+                                    Message={
+                                        "Body":{
+                                            "Text" : {"Data" : (notification), "Charset" : "UTF-8"},
+                                        },
+                                        "Subject":{
+                                            "Data":"Expiry of Ticket Alert Notifications",
+                                            "Charset":"UTF-8"
+                                        }
+                                    }        
+                                )
+    print(response)
+
 # function to create the EventInfo table from create.sql file
 def create_event_table():
     try:
@@ -52,7 +83,7 @@ def create_event_table():
         print(e)
 
 # insert data into EventInfo table
-# info_json is a dict of format {'performerAndCity' : str, 'eventDate':str or form (Mon(int) Date(int) Year(int)), 
+# info_json is a dict of format {'performerAndCity' : str, 'eventDate':str of form (Mon(int) Date(int) Year(int)), 
 #                                 'eventUrl':str(url), 'threshold':int, 'email':str}
 # info_json will be given from caller (i.e. client side)
 # must convert eventDate to datetime object
@@ -66,10 +97,12 @@ def insert(info_json):
     cursor = db_conn.cursor()
     try:
         cursor.execute("INSERT INTO EventInfo VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", info_json)
+        db_conn.commit()
+        # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
+        # verify_email(info_json["email"])
     except mysql.connector.IntegrityError as e:
         print("Duplicate value inserted. Error: {}".format(e))
     
-    db_conn.commit()
 
     cursor.execute("SELECT * FROM EventInfo")
     for row in cursor.fetchall():
@@ -77,7 +110,8 @@ def insert(info_json):
     cursor.close()
     db_conn.close()
 
-# delete all past events from the database, ones whose date has already passed
+# find all past events from the database (ones whose date has already passed), send unsubscription notification 
+# and delete from DB
 def delete():
     try:
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
@@ -85,6 +119,11 @@ def delete():
         print(e)
     
     cursor = db_conn.cursor()
+
+    # UNCOMMENT below lines to send unsubscription notifications. Commented out so messages aren't wasted
+    # cursor.execute("SELECT email, performerAndCity, eventDate FROM EventInfo WHERE eventDate < DATE(NOW())")
+    # for row in cursor.fetchall():
+    #     send_unsubscribe_notification(row[0], row[1], row[2])
 
     cursor.execute("DELETE FROM EventInfo WHERE eventDate < DATE(NOW());")
     db_conn.commit()
@@ -109,13 +148,17 @@ def select():
 
     # tuples are of order (performer, venue, eventDate, eventUrl, threshold, email), same as rows in DB, including null values
     for row in rows:
-        event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
-        if (event.get_event_info(row[URL_IDX])):
-            cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
-            notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
-            print(notification)
-            # uncomment below line to send email notifications. It's commented out so messages aren't sent when not needed
-            # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX])
+        print(row[PERFORMER_IDX])
+        if (is_verified(row[EMAIL_IDX])):
+            event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
+            if (event.get_event_info(row[URL_IDX])):
+                cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
+                notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
+                print(notification)
+                # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
+                # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX])
+        else:
+            print("email not verified")
     
     cursor.close()
     db_conn.close()
