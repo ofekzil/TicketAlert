@@ -34,6 +34,8 @@ def is_verified(email):
     return email in res["VerificationAttributes"] and res["VerificationAttributes"][email]["VerificationStatus"] == "Success"
 
 # send notification to email using Amazon SES
+# TODO: add unsubscription & event url links, make body HTML
+# unsubscription email = https://kq9m75lhb3.execute-api.us-west-1.amazonaws.com/test/unsubscribe?url={eventUrl}&threshold={threshold}&email={email}
 def send_notification(notification, email, performance):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
         response = ses_client.send_email(
@@ -74,7 +76,7 @@ def send_unsubscribe_notification(email, performance, date):
 def create_event_table():
     try:
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
-        with open('./requests_notify/sql/create.sql', 'r') as sql:
+        with open('./event_notifications/sql/create.sql', 'r') as sql:
             with db_conn.cursor() as cursor:
                 cursor.execute(sql.read(), multi=True)
         db_conn.commit()
@@ -162,6 +164,18 @@ def select():
     
     cursor.close()
     db_conn.close()
-    
-    
 
+# deletes row w/ given key from database, which will ensure no future emails are sent to this person for this event and threhsold
+def unsubscribe(url, threshold, email):
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+    except mysql.connector.Error as e:
+        print(e)
+    
+    cursor = db_conn.cursor()
+    cursor.execute("DELETE FROM EventInfo WHERE eventUrl=%(url)s AND threshold=%(threshold)s AND email=%(email)s",
+                   {"url" : url, "threshold" : threshold, "email" : email})
+    db_conn.commit()
+    cursor.close()
+    db_conn.close()
+    print("Unsubscription successful!")
