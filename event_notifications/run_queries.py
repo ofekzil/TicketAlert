@@ -20,6 +20,8 @@ EMAIL_IDX = 4
 
 SENDER = os.environ.get("SENDER")
 
+UNSUBSCRIBE_API = "https://kq9m75lhb3.execute-api.us-west-1.amazonaws.com/test/unsubscribe"
+
 ses_client = boto3.client("ses")
 
 # sends verification email to given email address
@@ -33,17 +35,21 @@ def is_verified(email):
     res = ses_client.get_identity_verification_attributes(Identities=[email])
     return email in res["VerificationAttributes"] and res["VerificationAttributes"][email]["VerificationStatus"] == "Success"
 
-# send notification to email using Amazon SES
-# TODO: add unsubscription & event url links, make body HTML
-# unsubscription email = https://kq9m75lhb3.execute-api.us-west-1.amazonaws.com/test/unsubscribe?url={eventUrl}&threshold={threshold}&email={email}
-def send_notification(notification, email, performance):
+# send ticket notification to email using Amazon SES
+def send_notification(notification, email, performance, threshold, url):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
         response = ses_client.send_email(
             Source=SENDER,
             Destination={"ToAddresses":[email]},
             Message={
                 "Body":{
-                    "Text" : {"Data" : (notification), "Charset" : "UTF-8"},
+                    "Html" : {"Data" : "<html><body><p>"+notification.replace("\n", "<br>")+"</p> <br>"
+                                        + "<footer> <a href='" + url + "'>event page url</a><br>"
+                                        + "<a href='" + UNSUBSCRIBE_API + "?url=" + url + "&threshold=" + str(threshold)
+                                        + "&email=" + email + "'>click here to unsubscribe from notifications for this event</a>"
+                                        +"</footer></body></html>", 
+                                "Charset" : "UTF-8"},
+                    "Text" : {"Data" : (notification), "Charset" : "UTF-8"}
                 },
                 "Subject":{
                     "Data":"Notification for Available Tickets for: " + performance,
@@ -158,7 +164,8 @@ def select():
                 notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
                 print(notification)
                 # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
-                # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX])
+                # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX],
+                #                   row[THRESHOLD_IDX], row[URL_IDX])
         else:
             print("email not verified")
     
