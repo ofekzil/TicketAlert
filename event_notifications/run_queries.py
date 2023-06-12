@@ -47,7 +47,9 @@ def send_notification(notification, email, performance, url, eventid):
                     "Html" : {"Data" : "<html><body><p>"+notification.replace("\n", "<br>")+"</p> <br>"
                                         + "<footer> <a href='" + url + "'>event page url</a><br>"
                                         + "<a href='" + UNSUBSCRIBE_API + "?eid=" + str(eventid) + "&op=this'>"
-                                        + "click here to unsubscribe from notifications for this event</a>"
+                                        + "click here to unsubscribe from notifications for THIS event subscription</a><br>"
+                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + str(eventid) + "&op=all'>"
+                                        + "click here to unsubscribe from notifications for ALL event subscriptions</a><br>"
                                         +"</footer></body></html>", 
                                 "Charset" : "UTF-8"},
                     "Text" : {"Data" : (notification), "Charset" : "UTF-8"}
@@ -94,6 +96,7 @@ def create_event_table():
 # insert data into EventInfo table
 # info_json is a dict of format {'performerAndCity' : str, 'eventDate':str of form (Mon(int) Date(int) Year(int)), 
 #                                 'eventUrl':str(url), 'threshold':int, 'email':str}
+# eventId is automatically generated each time and therefore doesn't need to be added
 # info_json will be given from caller (i.e. client side)
 # must convert eventDate to datetime object
 def insert(info_json):
@@ -174,7 +177,8 @@ def select():
     cursor.close()
     db_conn.close()
 
-# deletes row w/ given key from database, which will ensure no future emails are sent to this person for this event and threhsold
+# deletes row w/ given key from database
+# this ensures no future emails are sent to this person for this event and threhsold
 def unsubscribe(eventid):
     try:
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
@@ -187,4 +191,27 @@ def unsubscribe(eventid):
     db_conn.commit()
     cursor.close()
     db_conn.close()
-    print("Unsubscription successful!")
+    print("Unsubscription from THIS event successful!")
+
+# deletes ALL rows w/ the same email address as the one w/ given eventId from the DB
+# this ensures no future emails will be sent to this address at all from any future subscription
+def unsubscribe_all(eventid):
+    try:
+        db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
+    except mysql.connector.Error as e:
+        print(e)
+    
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT email FROM EventInfo WHERE eventId=%(eventId)s", {"eventId" : eventid})
+    res = cursor.fetchall() # will be an array of one tuple as eventId is the primary key
+    cursor.close()
+    if (len(res) == 0): return  # if there are no tuples, then this id no longer exists, i.e. the user has unsubscribed from THIS event already
+    print(res)
+    cursor = db_conn.cursor()
+    cursor.execute("DELETE FROM EventInfo WHERE email=%(email)s",
+                   {"email" : res[0][0]})
+    db_conn.commit()
+    cursor.close()
+    db_conn.close()
+    print("Unsubscription from ALL events successful!")
+

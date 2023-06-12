@@ -1,4 +1,4 @@
-from run_queries import insert, delete, select, unsubscribe
+from run_queries import insert, delete, select, unsubscribe, unsubscribe_all
 import logging
 import json
 
@@ -30,6 +30,7 @@ def lambda_handler(event, context):
             unsubscribe(params.get("eid"))
             response["body"] = json.dumps("You have successfully unsubscribed from this event's notifications!")
         elif (op == "all"):
+            unsubscribe_all(params.get("eid"))
             response["body"] = json.dumps("You have successfully unsubscribed from ALL event notifications!")
         else:
             logger.error("Invalid operation")

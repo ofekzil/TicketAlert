@@ -79,13 +79,15 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 # print(RECEIVER)
 # send_notification("I have some tickets available", RECEIVER, "")
 # select()
+# insert(e0_new)
 # insert(e1_new)
 # insert(alice)
 # insert(rockville)
+# insert(e1_new_2)
 # delete()
 # select()
 # unsubscribe(7)
-# insert(e1_new_2)
+# unsubscribe_all(1)
 # con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 # cursor = con.cursor()
 # cursor.execute("ALTER TABLE EventInfo RENAME EventInfoNoId")
@@ -95,6 +97,7 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 # con.commit()
 # cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'TicketAlert_DB';")
 # cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'TicketAlert_DB' AND table_name='EventInfo';")
+
 # cursor.execute("SELECT * FROM EventInfo")
 
 # for row in cursor.fetchall():
