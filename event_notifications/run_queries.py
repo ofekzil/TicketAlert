@@ -17,6 +17,7 @@ DATE_IDX = 1
 URL_IDX = 2
 THRESHOLD_IDX = 3
 EMAIL_IDX = 4
+ID_IDX = 5
 
 SENDER = os.environ.get("SENDER")
 
@@ -36,7 +37,7 @@ def is_verified(email):
     return email in res["VerificationAttributes"] and res["VerificationAttributes"][email]["VerificationStatus"] == "Success"
 
 # send ticket notification to email using Amazon SES
-def send_notification(notification, email, performance, threshold, url):
+def send_notification(notification, email, performance, url, eventid):
     if (notification != "No tickets below threshold. DO NOT SEND NOTIFICATION!"):
         response = ses_client.send_email(
             Source=SENDER,
@@ -45,8 +46,8 @@ def send_notification(notification, email, performance, threshold, url):
                 "Body":{
                     "Html" : {"Data" : "<html><body><p>"+notification.replace("\n", "<br>")+"</p> <br>"
                                         + "<footer> <a href='" + url + "'>event page url</a><br>"
-                                        + "<a href='" + UNSUBSCRIBE_API + "?url=" + url + "&threshold=" + str(threshold)
-                                        + "&email=" + email + "'>click here to unsubscribe from notifications for this event</a>"
+                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + str(eventid) + "&op=this'>"
+                                        + "click here to unsubscribe from notifications for this event</a>"
                                         +"</footer></body></html>", 
                                 "Charset" : "UTF-8"},
                     "Text" : {"Data" : (notification), "Charset" : "UTF-8"}
@@ -104,7 +105,8 @@ def insert(info_json):
     
     cursor = db_conn.cursor()
     try:
-        cursor.execute("INSERT INTO EventInfo VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", info_json)
+        cursor.execute("""INSERT INTO EventInfo(performerAndCity, eventDate, eventUrl, threshold, email) 
+                       VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)""", info_json)
         db_conn.commit()
         # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
         # verify_email(info_json["email"])
@@ -150,11 +152,11 @@ def select():
         print(e)
     
     cursor = db_conn.cursor()
-    cursor.execute("SELECT performerAndCity, eventDate, eventUrl, threshold, email "\
+    cursor.execute("SELECT performerAndCity, eventDate, eventUrl, threshold, email, eventId "\
                     "FROM EventInfo WHERE eventDate >= DATE(NOW())")
     rows = cursor.fetchall()
 
-    # tuples are of order (performer, venue, eventDate, eventUrl, threshold, email), same as rows in DB, including null values
+    # tuples are of order (performerAndCity, eventDate, eventUrl, threshold, email, eventId), same as rows in DB, including null values
     for row in rows:
         print(row[PERFORMER_IDX])
         if (is_verified(row[EMAIL_IDX])):
@@ -165,7 +167,7 @@ def select():
                 print(notification)
                 # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
                 # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX],
-                #                   row[THRESHOLD_IDX], row[URL_IDX])
+                #                   row[URL_IDX] ,row[ID_IDX])
         else:
             print("email not verified")
     
@@ -173,15 +175,15 @@ def select():
     db_conn.close()
 
 # deletes row w/ given key from database, which will ensure no future emails are sent to this person for this event and threhsold
-def unsubscribe(url, threshold, email):
+def unsubscribe(eventid):
     try:
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
     except mysql.connector.Error as e:
         print(e)
     
     cursor = db_conn.cursor()
-    cursor.execute("DELETE FROM EventInfo WHERE eventUrl=%(url)s AND threshold=%(threshold)s AND email=%(email)s",
-                   {"url" : url, "threshold" : threshold, "email" : email})
+    cursor.execute("DELETE FROM EventInfo WHERE eventId=%(eventId)s",
+                   {"eventId" : eventid})
     db_conn.commit()
     cursor.close()
     db_conn.close()

@@ -19,13 +19,21 @@ def lambda_handler(event, context):
         else:
             logger.error("Invalid operation")
     elif ("queryStringParameters" in event):
-        params = event.get("queryStringParameters")
-        unsubscribe(params["url"], params["threshold"], params["email"])
-        return {
+        response = {
             "statusCode" : 200,
             "headers" : {"Your-custom-header" : "custom-header-value"},
-            "body" : json.dumps({"message" : "You have successfully unsubscribed from the event notifications!"})
+            "body" : ""
         }
+        params = event.get("queryStringParameters")
+        op = params.get("op")
+        if (op == "this"):
+            unsubscribe(params.get("eid"))
+            response["body"] = json.dumps("You have successfully unsubscribed from this event's notifications!")
+        elif (op == "all"):
+            response["body"] = json.dumps("You have successfully unsubscribed from ALL event notifications!")
+        else:
+            logger.error("Invalid operation")
+        return response
     else:
         logger.error("Invalid operation")
     

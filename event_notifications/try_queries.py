@@ -79,24 +79,27 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 # print(RECEIVER)
 # send_notification("I have some tickets available", RECEIVER, "")
 # select()
-# insert(e1_new_2)
-insert(alice)
+# insert(e1_new)
+# insert(alice)
 # insert(rockville)
 # delete()
 # select()
-# unsubscribe('https://www.stubhub.com/avenged-sevenfold-vancouver-tickets-8-7-2023/event/151610788/', 100, 'ofekzil162@gmail.com')
+# unsubscribe(7)
+# insert(e1_new_2)
 # con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 # cursor = con.cursor()
-# cursor.execute("UPDATE EventInfo SET email = 'ticketalertreceiver@gmail.com'")
+# cursor.execute("ALTER TABLE EventInfo RENAME EventInfoNoId")
 # cursor.execute("INSERT INTO EventInfo(performer, eventDate, eventUrl, threshold, email) VALUES(%(performer)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", novenue)
 # cursor.execute("DELETE FROM EventInfo WHERE performerAndCity = 'Welcome To Rockville Daytona Beach'")
+# cursor.execute("DROP TABLE EventInfo")
 # con.commit()
 # cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'TicketAlert_DB';")
-# cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'TicketAlert_DB' AND table_name='EventInfoOld';")
+# cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'TicketAlert_DB' AND table_name='EventInfo';")
 # cursor.execute("SELECT * FROM EventInfo")
 
 # for row in cursor.fetchall():
 #     print(row)
+
 # cursor.close()
 # con.close()
 
@@ -116,4 +119,3 @@ insert(alice)
 # print(is_verified("someEmail@outlook.ca"))
 
 # send_unsubscribe_notification(RECEIVER, "Iron Maiden Vancouver", datetime.strptime("10 2 2023", DATE_FORMAT))
-
