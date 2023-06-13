@@ -22,6 +22,8 @@ ID_IDX = 5
 SENDER = os.environ.get("SENDER")
 
 UNSUBSCRIBE_API = "https://kq9m75lhb3.execute-api.us-west-1.amazonaws.com/test/unsubscribe"
+START_HASH = os.environ.get("START_HASH")
+END_HASH = os.environ.get("END_HASH")
 
 ses_client = boto3.client("ses")
 
@@ -46,9 +48,9 @@ def send_notification(notification, email, performance, url, eventid):
                 "Body":{
                     "Html" : {"Data" : "<html><body><p>"+notification.replace("\n", "<br>")+"</p> <br>"
                                         + "<footer> <a href='" + url + "'>event page url</a><br>"
-                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + str(eventid) + "&op=this'>"
+                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + START_HASH + str(eventid) + END_HASH + "&op=this'>"
                                         + "click here to unsubscribe from notifications for THIS event subscription</a><br>"
-                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + str(eventid) + "&op=all'>"
+                                        + "<a href='" + UNSUBSCRIBE_API + "?eid=" + START_HASH + str(eventid) + END_HASH + "&op=all'>"
                                         + "click here to unsubscribe from notifications for ALL event subscriptions</a><br>"
                                         +"</footer></body></html>", 
                                 "Charset" : "UTF-8"},
@@ -177,6 +179,11 @@ def select():
     cursor.close()
     db_conn.close()
 
+# extract the event id from the given encrypted string
+def get_eventid(id):
+    no_start = id.split(START_HASH)[1]
+    return no_start.split(END_HASH)[0]
+
 # deletes row w/ given key from database
 # this ensures no future emails are sent to this person for this event and threhsold
 def unsubscribe(eventid):
@@ -184,10 +191,11 @@ def unsubscribe(eventid):
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
     except mysql.connector.Error as e:
         print(e)
-    
+    id = int(get_eventid(eventid))
+    print(id)
     cursor = db_conn.cursor()
     cursor.execute("DELETE FROM EventInfo WHERE eventId=%(eventId)s",
-                   {"eventId" : eventid})
+                   {"eventId" : id})
     db_conn.commit()
     cursor.close()
     db_conn.close()
@@ -200,13 +208,14 @@ def unsubscribe_all(eventid):
         db_conn =  mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
     except mysql.connector.Error as e:
         print(e)
-    
+    id = int(get_eventid(eventid))
+    print(id)
     cursor = db_conn.cursor()
-    cursor.execute("SELECT email FROM EventInfo WHERE eventId=%(eventId)s", {"eventId" : eventid})
+    cursor.execute("SELECT email FROM EventInfo WHERE eventId=%(eventId)s", {"eventId" : id})
     res = cursor.fetchall() # will be an array of one tuple as eventId is the primary key
     cursor.close()
-    if (len(res) == 0): return  # if there are no tuples, then this id no longer exists, i.e. the user has unsubscribed from THIS event already
     print(res)
+    if (len(res) == 0): return  # if there are no tuples, then this id no longer exists, i.e. the user has unsubscribed from THIS event already
     cursor = db_conn.cursor()
     cursor.execute("DELETE FROM EventInfo WHERE email=%(email)s",
                    {"email" : res[0][0]})
