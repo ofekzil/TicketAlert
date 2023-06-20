@@ -18,6 +18,7 @@ URL_IDX = 2
 THRESHOLD_IDX = 3
 EMAIL_IDX = 4
 ID_IDX = 5
+CURRENCY_IDX = 6
 
 SENDER = os.environ.get("SENDER")
 
@@ -110,8 +111,9 @@ def insert(info_json):
     
     cursor = db_conn.cursor()
     try:
-        cursor.execute("""INSERT INTO EventInfo(performerAndCity, eventDate, eventUrl, threshold, email) 
-                       VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)""", info_json)
+        cursor.execute("""INSERT INTO EventInfo(performerAndCity, eventDate, eventUrl, threshold, email, currency) 
+                       VALUES(%(performerAndCity)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s, %(currency)s)""", 
+                       info_json)
         db_conn.commit()
         # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
         # verify_email(info_json["email"])
@@ -157,22 +159,23 @@ def select():
         print(e)
     
     cursor = db_conn.cursor()
-    cursor.execute("SELECT performerAndCity, eventDate, eventUrl, threshold, email, eventId "\
+    cursor.execute("SELECT performerAndCity, eventDate, eventUrl, threshold, email, eventId, currency "\
                     "FROM EventInfo WHERE eventDate >= DATE(NOW())")
     rows = cursor.fetchall()
 
-    # tuples are of order (performerAndCity, eventDate, eventUrl, threshold, email, eventId), same as rows in DB, including null values
+    # tuples are of order (performerAndCity, eventDate, eventUrl, threshold, email, eventId, currency), 
+    # same as rows in DB, including null values
     for row in rows:
         print(row[PERFORMER_IDX])
         if (is_verified(row[EMAIL_IDX])):
             event = Event((datetime(datetime.now().year, 12, 31) if row[DATE_IDX] == None else row[DATE_IDX]), row[EMAIL_IDX])
             if (event.get_event_info(row[URL_IDX])):
-                cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX])
+                cheap_tix = event.get_cheap_tickets(row[THRESHOLD_IDX], row[CURRENCY_IDX])
                 notification = event.notify(cheap_tix, ("Performer" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX]))
                 print(notification)
                 # UNCOMMENT below line to send email notifications. It's commented out so messages aren't sent when not needed
                 # send_notification(notification, row[EMAIL_IDX], "Performance" if row[PERFORMER_IDX] == None else row[PERFORMER_IDX],
-                #                   row[URL_IDX] ,row[ID_IDX])
+                #                   row[URL_IDX], row[ID_IDX])
         else:
             print("email not verified")
     

@@ -15,7 +15,7 @@ function capitalizeFirst(str) {
 }
 
 // set info to be sent to lambda, getting it from url and also including email and threshold
-function setInfo(url, email, threshold) {
+function setInfo(url, email, threshold, currency) {
     let split = url.split('?')[0];
     let info = split.split('/')[3].split('-');
     info = info.map(capitalizeFirst);
@@ -40,7 +40,7 @@ function setInfo(url, email, threshold) {
     date = date.substring(0, date.length - 1);
 
     return {performerAndCity : performer, eventDate : date, eventUrl : split,
-            threshold : threshold, email : email};
+            threshold : threshold, email : email, currency : currency};
 }
 
 // sends a post request to url (lambda), sending sendData
@@ -54,7 +54,6 @@ function postFetch(url, sendData) {
     }
 
 // listener for when Submit button is pressed
-// TODO: work out currency into here
 function buttonListener() {
     document.getElementById("submit").addEventListener('click', () => {
         const email = document.getElementById("email").value;
@@ -67,13 +66,14 @@ function buttonListener() {
             alert("Price threshold must be a positive integer");
             return;
         }
+        const currency = document.getElementById("currencies").value;
         chrome.tabs.query({ active: true }, function (tabs) {
             const url = tabs[0].url;
             if (url && validate(url, URL_PATTERN)) {
                 console.log(url);
                 console.log(email);
                 console.log(threshold);
-                const info = setInfo(url, email, threshold);
+                const info = setInfo(url, email, threshold, currency);
                 console.log(info);
                 postFetch(API, {operation : "insert", info : info});
                 alert("Your information has been saved. You should next receive " +

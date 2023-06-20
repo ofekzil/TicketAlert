@@ -42,33 +42,45 @@ e0_new = {'performerAndCity':'Iron Maiden Vancouver',
       'eventDate':'10 2 2023',
       'eventUrl':"https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/",
       'threshold':160,
-      'email':RECEIVER}
+      'email':RECEIVER,
+      'currency':"USD"}
 e1_new = {'performerAndCity':"Guns N Roses Vancouver", 
       'eventDate':'10 16 2023',
       'eventUrl':"https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/",
       'threshold':140,
-      'email':RECEIVER}
+      'email':RECEIVER,
+      'currency':"USD"}
 past_new = {'performerAndCity':"Some Artist City",
         'eventDate':"8 13 2020",
         'eventUrl':'https://www.stubhub.ca/',
         'threshold':75,
-        'email':'someEmail@mail.com'}
+        'email':'someEmail@mail.com',
+        'currency':"USD"}
 rockville = {'performerAndCity':"Welcome To Rockville Daytona Beach", 
       'eventDate':'5 22 2023',
       'eventUrl':"https://www.stubhub.ca/welcome-to-rockville-daytona-beach-tickets-5-18-2023/event/150456734/",
       'threshold':100,
-      'email':RECEIVER}
+      'email':RECEIVER,
+      'currency':"USD"}
 
 alice = {'performerAndCity':'Alice Cooper Detroit', 
       'eventDate':'5 21 2023',
       'eventUrl':"https://www.stubhub.ca/alice-cooper-detroit-tickets-5-21-2023/event/132569874/",
       'threshold':60,
-      'email':RECEIVER}
+      'email':RECEIVER,
+      'currency':"USD"}
 e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver", 
       'eventDate':'10 16 2023',
       'eventUrl':"https://www.stubhub.ca/guns-n-roses-vancouver-tickets-10-16-2023/event/151494664/",
       'threshold':20,
-      'email':RECEIVER}
+      'email':RECEIVER,
+      'currency':"USD"}
+e0_new_2 = {'performerAndCity':'Iron Maiden Vancouver', 
+      'eventDate':'10 2 2023',
+      'eventUrl':"https://www.stubhub.ca/iron-maiden-vancouver-tickets-10-2-2023/event/151714575/",
+      'threshold':180,
+      'email':RECEIVER,
+      'currency':"CAD"}
 
 # t0 = time.time()
 # select()
@@ -84,16 +96,19 @@ e1_new_2 = {'performerAndCity':"Guns N Roses Vancouver",
 # insert(alice)
 # insert(rockville)
 # insert(e1_new_2)
+# insert(e0_new_2)
 # delete()
 # select()
 # unsubscribe(7)
 # unsubscribe_all(1)
 # con = mysql.connector.connect(user=USERNAME, password=PASSWORD, host=ENDPOINT, port=PORT, database=DATABASE)
 # cursor = con.cursor()
+# cursor.execute("ALTER TABLE EventInfo ADD currency VARCHAR(10)")
 # cursor.execute("ALTER TABLE EventInfo RENAME EventInfoNoId")
 # cursor.execute("INSERT INTO EventInfo(performer, eventDate, eventUrl, threshold, email) VALUES(%(performer)s, %(eventDate)s, %(eventUrl)s, %(threshold)s, %(email)s)", novenue)
 # cursor.execute("DELETE FROM EventInfo WHERE performerAndCity = 'Welcome To Rockville Daytona Beach'")
 # cursor.execute("DROP TABLE EventInfo")
+# cursor.execute("UPDATE EventInfo SET currency='USD'")
 # con.commit()
 # cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'TicketAlert_DB';")
 # cursor.execute("SELECT column_name FROM information_schema.columns WHERE table_schema = 'TicketAlert_DB' AND table_name='EventInfo';")

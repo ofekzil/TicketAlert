@@ -39,6 +39,6 @@ The deployment package for the function must contain the following files (all in
 
 - ~~Subscription confirmation. Send a confirmation message to users that would confirm their subscription to notifications.~~
 
-## Limitations:
+## Limitations
 
 - Subscription Confirmation: When a user subscribes to an event, they receive an email to confirm their subscription by clicking a link. Currently, the confimation email that is sent is the one that verifies an email identity in AWS SES. Due to sandbox constraints, the email is not customized but is the standard AWS email. In a production environment, this step may even be completely skipped over and the confirmation emails will be completely different.

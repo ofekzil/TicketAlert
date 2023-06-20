@@ -5,6 +5,7 @@ CREATE TABLE EventInfo(
     eventUrl VARCHAR(400),
     threshold INTEGER,
     email VARCHAR(200),
+    currency VARCHAR(10),
     PRIMARY KEY(eventId),
     UNIQUE(eventUrl, threshold, email)
 );

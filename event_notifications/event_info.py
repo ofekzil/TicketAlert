@@ -2,7 +2,9 @@ import requests
 import re
 from datetime import datetime 
 
-# TODO: Work out currency conversions in event model (DB, class, notification)
+
+EXCHANGE_API = "https://open.er-api.com/v6/latest/"
+
 # class representing an event on StubHub. Corresponds to a database entry
 class Event:
 
@@ -53,28 +55,27 @@ class Event:
     def get_price_from_seat(self, seat):
         return self.get_price(seat["Price"])
 
-    # return an array of json objects w/ price and seat availability for event where price is <= threshold
-    def get_cheap_tickets(self, threshold):
+    # return an array of json objects w/ price and seat availability for event where price (converted to desired currency) 
+    # is <= threshold
+    def get_cheap_tickets(self, threshold, currency):
         items = self.event_json["Items"]
         seats = list()
+        from_usd = requests.get(EXCHANGE_API + "USD").json()['rates'][currency]
         for item in items:
-            price_str = ""
+            price_str = currency + " "
             max_price = 0
             if (item["PriceWithFees"] != None and item["PriceWithFees"] != ""):
                 price = self.get_price(item["Price"])
                 price_fees = self.get_price(item["PriceWithFees"])
                 if (price > price_fees):
-                    price_str = item["Price"]
                     max_price = price
                 else:
-                    price_str = item["PriceWithFees"]
                     max_price = price_fees
             else:
                 max_price =  self.get_price(item["Price"])
-                price_str = item["Price"]
-            
+            max_price = int(max_price * from_usd)
             if (max_price <= threshold):
-                ticket = {"Price" : price_str, "Section" : item["Section"], "Row" : item["Row"], 
+                ticket = {"Price" : price_str + str(max_price), "Section" : item["Section"], "Row" : item["Row"], 
                         "Quantity Range" : item["QuantityRange"]}
                 seats.append(ticket)
         seats.sort(key=self.get_price_from_seat)

@@ -4,7 +4,12 @@
     </head>
     <body>
         <label for="email"></label>Email Address: <input type="email" id="email" name="email" required>
-        <label for="threshold"></label>Price Threshold (in USD): <input type="number" id="threshold" name="threshold" required>
+        <label for="threshold"></label>Price Threshold: <input type="number" id="threshold" name="threshold" required>
+        <label for="currencies">Currencies (choose one):</label>
+        <select name="currencies" id="currencies">
+            <script type="text/javascript" src="./currencyDropdown.js"></script>
+        </select>
+        <br><br>
         <button type="button" id="submit">Submit</button>
         <script type="text/javascript" src="./popup.js">
         </script>        
